@@ -4,6 +4,7 @@ import numpy as np
 
 
 def randomizarTabuleiroQuadro():
+    # Função feita para randomizar os valores da Matriz
     tesouro = 0
     bomba = 0
     colunas = 5
@@ -47,8 +48,8 @@ def randomizarTabuleiroQuadro():
 
     return tabuleiro
 
-# Função feita para randomizar os valores do vetor
 def randomizarTabuleiroLinha():
+    # Função feita para randomizar os valores do Vetor
     tesouro = 0
     bomba = 0
     tamanho = 10
@@ -82,8 +83,8 @@ def randomizarTabuleiroLinha():
 
     return tabuleiro
 
-# Criar um vetor do mesmo tamanho do vetor que sera retornado no randomizarTabuleiro, só que com simbolos trocados por ⭕
 def tabelaMostrada(tipoJogo):
+    # Criar um vetor do mesmo tamanho do Vetor ou Matriz que sera retornado no randomizarTabuleiro, só que com os simbolos trocados por ⭕
     if tipoJogo == 1:
 
         provTab = randomizarTabuleiroLinha()
@@ -99,10 +100,8 @@ def tabelaMostrada(tipoJogo):
                     provTab[i][j] = ("⭕")
         return provTab
 
-
-
-# Start no game
 def startGame(continuação):
+    # Start no game
     tipo = 0
     while tipo < 1 or tipo > 2:
 
@@ -114,21 +113,23 @@ def startGame(continuação):
     else:
         modoDois()
     print("=========================================================")
-    continuação = int(input("Deseja continuar: [1 SIM]   [2 NÃO] "))
 
-    if continuação == 1:
-        if tipo == 1:
-            modoUm()
+    while continuação == 1:
+        continuação = int(input("Deseja continuar: [1 SIM]   [2 NÃO] "))
+
+        if continuação != 1:
+            print("=========================================================")
+            print("FECHANDO O JOGO:")
+
         else:
-            modoDois()
-    else:
-        print("=========================================================")
-        print("FECHANDO O JOGO:")
+            if tipo == 1:
+                modoUm()
+            else:
+                modoDois()
 
-
-# Feita para vericar cada unidade do vetor ou matriz e retornar True se todas as unidades contendo Terra foram adivinhadas,
-# ou  retornar falso se ainda falta unidade a ser adivinhada
 def verificarCampos(tabuleiroVerdadeiro, tabuleiroFalso):
+    # Feita para vericar cada unidade do vetor ou matriz e retornar True se todas as unidades contendo Terra foram adivinhadas,
+    # ou  retornar falso se ainda falta unidade a ser adivinhada e também verificar se ele jogou emcima de uma bomba ou tesouro
     mina = 0
     bomba = 0
     terra = 0
@@ -146,7 +147,7 @@ def verificarCampos(tabuleiroVerdadeiro, tabuleiroFalso):
     # Faz contagem de quantas unidades foram acertadas.
     for i in range(len(tabuleiroFalso)):
 
-        if tabuleiroFalso[i] == "❌":
+        if "❌" in tabuleiroFalso[i]:
             correto += 1
 
     # Verifica se a quantidade de Terra e a quantidade de unidades acertadas são iguas, se forem iguais o jogo acaba
@@ -157,7 +158,40 @@ def verificarCampos(tabuleiroVerdadeiro, tabuleiroFalso):
     else:
         return False
 
+def verificarCampos(tabuleiroVerdadeiro, tabuleiroFalso, i):
+    # Feita para vericar cada unidade do vetor ou matriz e retornar True se todas as unidades contendo Terra foram adivinhadas,
+    # ou  retornar falso se ainda falta unidade a ser adivinhada e também verificar se ele jogou emcima de uma bomba ou tesouro
+    mina = 0
+    bomba = 0
+    terra = 0
+    correto = 0
+
+    # Faz a contagem de BOMBA, MINA e Terra
+    for i in range(len(tabuleiroVerdadeiro)):
+        for j in range(len(tabuleiroVerdadeiro)):
+            if tabuleiroVerdadeiro[i][j] == '⛏':
+                mina += 1
+            else:
+                if tabuleiroVerdadeiro[i][j] == '💣':
+                    bomba += 1
+                else:
+                    terra += 1
+    # Faz contagem de quantas unidades foram acertadas.
+    for i in range(len(tabuleiroFalso)):
+        for j in range(len(tabuleiroFalso)):
+            if "❌" in tabuleiroFalso[i][j]:
+                correto += 1
+
+    # Verifica se a quantidade de Terra e a quantidade de unidades acertadas são iguas, se forem iguais o jogo acaba
+    if correto == terra:
+        return True
+
+    # Caso ainda não seja iguais o jogo continua.
+    else:
+        return False
+
 def modoUm():
+    #Modo de jogo em linha == Vetor
 
     # Aqui cria os vetores ou matrizes para começar o jogo
     tabuleiro = randomizarTabuleiroLinha()
@@ -168,7 +202,7 @@ def modoUm():
         maiorPosicao = len(tabuleiro) + 1
 
         # Printa o estado atual do Tabuleiro
-
+        print(tabuleiro)
         print(provTab)
         jogada = int(input("Onde você jogará nessa tentativa: "))
 
@@ -183,6 +217,21 @@ def modoUm():
             tentantiva = False
 
         else:
+            bombas = 0
+            #VERIFICARA QUANTAS BOMBAS TEM POR PERTO
+            # EX:'💣',    '🌐',  '💣' VOCE JOGA NA SEGUNDA CASA IRA APARECER QUANTAS BOMBAS EXISTEM EMVOLTA DA CASA 2
+            #    '1 ⭕ ', "2❌", '3 ⭕ '
+            for i in range(len(tabuleiro)):
+
+                if i == (jogada - 1):
+                    if (i - 1) > 0:
+                        if tabuleiro[i - 1] == "💣":
+                            bombas += 1
+
+                    if i + 1 < len(tabuleiro):
+                        if tabuleiro[i + 1] == "💣":
+                            bombas += 1
+
             # CASO A UNIDADE QUE O JOGADOR JOGUE SEJA == TESOURO
             if tabuleiro[jogada - 1] == "⛏":
                 print("=========================================================\nPARABÉNS VOCÊ ACHOU O TESOURO")
@@ -191,7 +240,8 @@ def modoUm():
 
             else:
                 # CASO A UNIDADE QUE O JOGADOR JOGUE SEJA == TERRA
-                provTab[jogada - 1] = "❌"
+                provTab[jogada - 1] = f"{bombas}❌"
+
 
                 # Verifica se o jogador acertou todas as terras ou se ainda falta
                 if verificarCampos(tabuleiro, provTab) == True:
@@ -200,6 +250,7 @@ def modoUm():
                     tentantiva = False
 
 def modoDois():
+    #Modo de jogo em Quadro == Matriz
 
     # Aqui cria os vetores ou matrizes para começar o jogo
     tabuleiro = randomizarTabuleiroQuadro()
@@ -207,6 +258,7 @@ def modoDois():
     tentantiva = True
 
     while tentantiva == True:
+        print(tabuleiro)
         print(provTab)
         linha = int(input("Linha jogada: "))
         while linha > 5:
@@ -225,23 +277,73 @@ def modoDois():
                             print(
                                 "=========================================================\nVOCÊ PERDEU!!!!!!!!!!!!!!!!!!!!!")
                             print(tabuleiro)
+
                             tentantiva = False
+                            print("=========================================================")
+                            break
 
                         else:
                             # CASO A UNIDADE QUE O JOGADOR JOGUE SEJA == TESOURO
                             if tabuleiro[i][j] == "⛏":
-                                print(
-                                    "=========================================================\nPARABÉNS VOCÊ ACHOU O TESOURO")
+                                print("=========================================================\nPARABÉNS VOCÊ ACHOU O TESOURO")
                                 print(tabuleiro)
+
+                                tentantiva = False
+                                print("=========================================================")
+                                break
+
+
+                            else:
+                                bombas = 0
+                                for i in range(len(provTab)):
+                                    if i == (linha - 1):
+                                        for j in range(len(provTab)):
+                                            if i == linha - 1 and j == coluna - 1:
+
+                                                #Verificar linha debaixo
+                                                if (i + 1) < 5:
+                                                    if (j + 1) < 5:
+                                                        if tabuleiro[i + 1][j + 1] == "💣":
+                                                            bombas += 1
+
+                                                    if (j - 1) >= 0:
+                                                        if tabuleiro[i + 1][j - 1] == "💣":
+                                                            bombas += 1
+
+                                                    if tabuleiro[i + 1][j] == "💣":
+                                                        bombas += 1
+
+
+                                                #Verificar linha de cima
+                                                if (i - 1) >= 0:
+                                                    if (j + 1) < 5:
+                                                        if tabuleiro[i - 1][j + 1] == "💣":
+                                                            bombas += 1
+
+                                                    if (j - 1) >= 0:
+                                                        if tabuleiro[i - 1][j - 1] == "💣":
+                                                            bombas += 1
+
+                                                    if tabuleiro[i - 1][j] == "💣":
+                                                        bombas += 1
+                                                #Verificar linha jogada
+                                                if (j + 1) < 5:
+                                                    if tabuleiro[i][j + 1] == "💣":
+                                                        bombas += 1
+
+                                                if (j - 1) >= 0:
+                                                    if tabuleiro[i][j - 1] == "💣":
+                                                        bombas += 1
+
+                                for i in range(len(provTab)):
+                                    if i == (linha - 1):
+                                        for j in range(len(provTab)):
+                                            if i == linha - 1 and j == coluna - 1:
+                                                provTab[i][j] =  f"{bombas}❌"
+                            if verificarCampos(tabuleiro,provTab, i) == True:
+                                print(tabuleiro)
+                                print("=========================================================\nParabén você ganhou!!!!!!!!!!!!!!!!!!!")
                                 tentantiva = False
 
-        for i in range(len(provTab)):
-            if i == (linha - 1):
-                for j in range(len(provTab)):
-                    if j == (coluna - 1):
-                        provTab[i][j] = "❌"
-
-    startGame(1)
-
-startGame(0)
+startGame(1)
 
